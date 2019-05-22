@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "test": "jest",
+    "test": "jest --collectCoverage",
     "lint": "eslint ./src",
     "precommit": "yarn lint"
   },
