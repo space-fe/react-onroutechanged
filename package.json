@@ -2,15 +2,27 @@
   "name": "react-onroutechanged",
   "version": "0.0.1",
   "description": "An onRouteChanged wrapper for React components",
-  "main": "index.js",
+  "main": "es/index.js",
   "repository": "https://github.com/space-fe/react-onroutechanged.git",
   "author": "buptdxc@gmail.com",
   "license": "MIT",
   "private": false,
+  "module": "es/index.js",
+  "keywords": [
+    "react",
+    "react-router",
+    "changed",
+    "hoc",
+    "location"
+  ],
   "scripts": {
     "test": "jest --collectCoverage",
     "lint": "eslint ./src",
-    "precommit": "yarn lint"
+    "precommit": "yarn lint",
+    "build": "rollup -c"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
   },
   "jest": {
     "setupFilesAfterEnv": [
@@ -33,6 +45,7 @@
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^10.0.1",
@@ -57,6 +70,10 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router": "^5.0.0",
-    "react-router-dom": "^5.0.0"
+    "react-router-dom": "^5.0.0",
+    "rollup": "^1.12.3",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-jsx": "^1.0.3"
   }
 }
