@@ -1,6 +1,6 @@
 {
   "name": "react-onroutechanged",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An onRouteChanged wrapper for React components",
   "main": "es/index.js",
   "repository": "https://github.com/space-fe/react-onroutechanged.git",
@@ -18,8 +18,11 @@
   "scripts": {
     "test": "jest --collectCoverage",
     "lint": "eslint ./src",
-    "precommit": "yarn lint",
-    "build": "rollup -c"
+    "precommit": "yarn lint && yarn test",
+    "build": "rollup -c",
+    "release:patch": "yarn build  && yarn version --patch && yarn publish && git push --follow-tags",
+    "release:minor": "yarn build && yarn version --minor && yarn publish && git push --follow-tags",
+    "release:major": "yarn build && yarn version --major && yarn publish && git push --follow-tags"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
