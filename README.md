@@ -69,4 +69,4 @@ The `location` object has the following attributes:
 | -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mounted`      | `boolean` | `false` | If `true`, the `handleRouteChanged` method of the wrappedComponent will be called with `(null, currentLocation)`when the component is mounted.                                                                                          |
 | `onlyPathname` | `boolean` | `true`  | If `true`, the `handleRouteChanged` method will only be called when the `pathname` of the location has been changed. If `false`, the changes of `search` or `hash` of the `location` will also trigger the `handleRouteChanged` method. |
-| `handleRouteChanged` | `function` |   | `handleRouteChanged` method is required when there is a functional component |
+| `handleRouteChanged` | `function` |   | `handleRouteChanged` method is required when the DecoratedComponent is a functional component |

@@ -21,7 +21,7 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
       location: PropTypes.object.isRequired
     }
 
-    __getHandleRouteChange = () => {
+    __getHandleRouteChangedFunc = () => {
       let handleRouteChanged
 
       if (!isReactComponent && typeof config.handleRouteChanged === 'function') {
@@ -40,7 +40,7 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
       const isSameSearch = prevLocation.search === nextLocation.search
       const isSameHash = prevLocation.hash === nextLocation.hash
 
-      const handleRouteChanged = this.__getHandleRouteChange()
+      const handleRouteChanged = this.__getHandleRouteChangedFunc()
 
       if (!isSamePath) {
         return handleRouteChanged(prevLocation, nextLocation)
@@ -52,7 +52,7 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
     }
 
     componentDidMount () {
-      const handleRouteChanged = this.__getHandleRouteChange()
+      const handleRouteChanged = this.__getHandleRouteChangedFunc()
 
       if (typeof handleRouteChanged !== 'function') {
         throw new Error(
