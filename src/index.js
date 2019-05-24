@@ -12,6 +12,7 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
   config.onlyPathname = config.onlyPathname === undefined ? true : config.onlyPathname
 
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
+  const isReactComponent = DecoratedComponent.prototype.isReactComponent
 
   class RouteChangedComponent extends React.Component {
     static displayName = `OnRouteChanged(${componentName})`
@@ -20,8 +21,40 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
       location: PropTypes.object.isRequired
     }
 
+    __getHandleRouteChange = () => {
+      let handleRouteChanged
+
+      if (!isReactComponent && typeof config.handleRouteChanged === 'function') {
+        handleRouteChanged = config.handleRouteChanged
+      }
+
+      if (isReactComponent && typeof this.instanceRef.handleRouteChanged === 'function') {
+        handleRouteChanged = this.instanceRef.handleRouteChanged
+      }
+
+      return handleRouteChanged
+    }
+
+    __routeChangedHandler = (prevLocation, nextLocation) => {
+      const isSamePath = prevLocation.pathname === nextLocation.pathname
+      const isSameSearch = prevLocation.search === nextLocation.search
+      const isSameHash = prevLocation.hash === nextLocation.hash
+
+      const handleRouteChanged = this.__getHandleRouteChange()
+
+      if (!isSamePath) {
+        return handleRouteChanged(prevLocation, nextLocation)
+      }
+
+      if (!config.onlyPathname && (!isSameHash || !isSameSearch)) {
+        return handleRouteChanged(prevLocation, nextLocation)
+      }
+    }
+
     componentDidMount () {
-      if (typeof this.instanceRef.handleRouteChanged !== 'function') {
+      const handleRouteChanged = this.__getHandleRouteChange()
+
+      if (typeof handleRouteChanged !== 'function') {
         throw new Error(
           'WrappedComponent lacks a handleRouteChanged(prevLocation, currLocation) for processing route changed event.'
         )
@@ -30,21 +63,7 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
       if (config.mounted) {
         // Since we have no idea what the previous route is when the component got mounted,
         // We will pass an null as the prevLocation param
-        this.instanceRef.handleRouteChanged(null, this.props.location)
-      }
-    }
-
-    __routeChangedHandler = (prevLocation, nextLocation) => {
-      const isSamePath = prevLocation.pathname === nextLocation.pathname
-      const isSameSearch = prevLocation.search === nextLocation.search
-      const isSameHash = prevLocation.hash === nextLocation.hash
-
-      if (!isSamePath) {
-        return this.instanceRef.handleRouteChanged(prevLocation, nextLocation)
-      }
-
-      if (!config.onlyPathname && (!isSameHash || !isSameSearch)) {
-        return this.instanceRef.handleRouteChanged(prevLocation, nextLocation)
+        handleRouteChanged(null, this.props.location)
       }
     }
 
@@ -60,10 +79,12 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
     }
 
     render () {
-      return <DecoratedComponent
-        ref={ref => { this.instanceRef = ref }}
-        {...this.props}
-      />
+      let { ...props } = this.props
+      if (isReactComponent) {
+        props.ref = ref => { this.instanceRef = ref }
+      }
+
+      return <DecoratedComponent {...props} />
     }
   }
 

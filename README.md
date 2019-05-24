@@ -16,7 +16,7 @@ yarn add react-onroutechanged
 ### ES6 Class Component
 ```javascript
 import React from 'react'
-import onRoutedChangedHOC from 'react-onroutechanged'
+import onRouteChangedHOC from 'react-onroutechanged'
 
 class MyComponent extends React.Component {
   handleRouteChanged = (prevLocation, nextLocation) => {
@@ -31,6 +31,30 @@ const onRoutedChangedConfig = {
 
 export default onRouteChangedHOC(MyComponent, onRoutedChangedConfig)
 ```
+
+### Functional Component with UseState Hook
+```javascript
+import React, { useState } from 'react'
+import onRouteChangedHOC from 'react-onroutechanged'
+
+const MyComponent = () => {
+  const [location, setLocation] = useState()
+
+  MyComponent.handleRouteChanged = (prevLocation, nextLocation) => {
+    // ...do your stuff with location information here
+    setLocation(nextLocation)
+  }
+}
+
+const onRoutedChangedConfig = {
+  mounted: true,
+  onlyPathname: false,
+  handleRouteChanged: MyComponent.handleRouteChanged
+}
+
+export default onRouteChangedHOC(MyComponent, onRoutedChangedConfig)
+```
+
 ## Location Object
 The `location` object has the following attributes:
 * `location.pathname` - The path of the URL
@@ -45,3 +69,4 @@ The `location` object has the following attributes:
 | -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mounted`      | `boolean` | `false` | If `true`, the `handleRouteChanged` method of the wrappedComponent will be called with `(null, currentLocation)`when the component is mounted.                                                                                          |
 | `onlyPathname` | `boolean` | `true`  | If `true`, the `handleRouteChanged` method will only be called when the `pathname` of the location has been changed. If `false`, the changes of `search` or `hash` of the `location` will also trigger the `handleRouteChanged` method. |
+| `handleRouteChanged` | `function` |   | `handleRouteChanged` method is required when there is a functional component |
