@@ -14,14 +14,29 @@ class Component extends React.Component {
     return <div>test</div>
   }
 }
+
+const FuncComponent = function() {
+  return <div>test</div>
+}
+
 let handleRouteChangedFunc
 
-cases('test in case', opts => {
+cases('test in normal', opts => {
   // Resets handleRouteChangedFunc to a fresh mock func
   handleRouteChangedFunc = jest.fn()
-  Component.prototype.handleRouteChanged = handleRouteChangedFunc
+  let TestComponent
 
-  const TestComponent = OnRouteChangedHOC(Component, opts.config)
+  if (opts.isReactComponent) {
+    Component.prototype.handleRouteChanged = handleRouteChangedFunc
+    TestComponent = OnRouteChangedHOC(Component, opts.config)
+  } else {
+    FuncComponent.handleRouteChanged = handleRouteChangedFunc
+    TestComponent = OnRouteChangedHOC(FuncComponent, {
+      ...opts.config,
+      handleRouteChanged: FuncComponent.handleRouteChanged
+    })
+  }
+ 
   const wrapper = mount(<TestComponent
     location={opts.locations[0]}
   />)
@@ -30,50 +45,115 @@ cases('test in case', opts => {
   }
 
   expect(handleRouteChangedFunc)
-    .toHaveBeenCalledTimes(opts.calledTime)
+  .toHaveBeenCalledTimes(opts.calledTime)
 
   if (opts.calledParams) {
     expect(handleRouteChangedFunc)
       .toHaveBeenCalledWith(...opts.calledParams)
   }
+
+  Component.prototype.handleRouteChanged = undefined
 }, [
   {
-    name: 'should not call handleRouteChanged function when component is mounted if config.mounted=false',
+    name: 'should not call handleRouteChanged function when class component is mounted if config.mounted=false',
     locations: [l1],
+    isReactComponent: true,
     calledTime: 0,
     config: undefined
   },
   {
-    name: 'should call handleRouteChanged function when component is mounted if config.mounted=true',
+    name: 'should not call handleRouteChanged function when functional component is mounted if config.mounted=false',
     locations: [l1],
+    isReactComponent: false,
+    calledTime: 0,
+    config: undefined
+  },
+  {
+    name: 'should call handleRouteChanged function when class component is mounted if config.mounted=true',
+    locations: [l1],
+    isReactComponent: true,
     calledTime: 1,
     config: { mounted: true },
     calledParams: [null, l1]
   },
   {
-    name: 'should call handleRouteChanged when pathname is changed',
+    name: 'should call handleRouteChanged function when functional component is mounted if config.mounted=true',
+    locations: [l1],
+    isReactComponent: false,
+    calledTime: 1,
+    config: { mounted: true },
+    calledParams: [null, l1]
+  },
+  {
+    name: 'should call handleRouteChanged when class component pathname is changed',
     locations: [l1, l4],
+    isReactComponent: true,
     calledTime: 1,
     calledParams: [l1, l4]
   },
   {
-    name: 'should not call handleRouteChanged function when pathname is not changed if config.onlyPathname=true',
+    name: 'should call handleRouteChanged when functional component pathname is changed',
+    locations: [l1, l4],
+    isReactComponent: false,
+    calledTime: 1,
+    calledParams: [l1, l4]
+  },
+  {
+    name: 'should not call handleRouteChanged function when class component pathname is not changed if config.onlyPathname=true',
     locations: [l1, l2],
+    isReactComponent: true,
     calledTime: 0,
     config: { onlyPathname: true }
   },
   {
-    name: 'should call handleRouteChanged function when pathname is not changed but hash has changed if config.onlyPathname=false',
+    name: 'should not call handleRouteChanged function when functional component pathname is not changed if config.onlyPathname=true',
     locations: [l1, l2],
+    isReactComponent: false,
+    calledTime: 0,
+    config: { onlyPathname: true }
+  },
+  {
+    name: 'should call handleRouteChanged function when class component pathname is not changed but hash has changed if config.onlyPathname=false',
+    locations: [l1, l2],
+    isReactComponent: true,
     calledTime: 1,
     config: { onlyPathname: false },
     calledParams: [l1, l2]
   },
   {
-    name: 'should call handleRouteChanged function when pathname is not changed but search has changed if config.onlyPathname=false',
+    name: 'should call handleRouteChanged function when functional component pathname is not changed but hash has changed if config.onlyPathname=false',
+    locations: [l1, l2],
+    isReactComponent: false,
+    calledTime: 1,
+    config: { onlyPathname: false },
+    calledParams: [l1, l2]
+  },
+  {
+    name: 'should call handleRouteChanged function when class component pathname is not changed but search has changed if config.onlyPathname=false',
     locations: [l1, l3],
+    isReactComponent: true,
     calledTime: 1,
     config: { onlyPathname: false },
     calledParams: [l1, l3]
+  },
+  {
+    name: 'should call handleRouteChanged function when functional component pathname is not changed but search has changed if config.onlyPathname=false',
+    locations: [l1, l3],
+    isReactComponent: false,
+    calledTime: 1,
+    config: { onlyPathname: false },
+    calledParams: [l1, l3]
+  },
+  {
+    name: 'should not call handleRouteChanged function when class component location is not changed',
+    locations: [l1, l1],
+    isReactComponent: true,
+    calledTime: 0
+  },
+  {
+    name: 'should not call handleRouteChanged function when functional component location is not changed',
+    locations: [l1, l1],
+    isReactComponent: false,
+    calledTime: 0
   }
 ])
