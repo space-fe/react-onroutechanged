@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "An onRouteChanged wrapper for React components",
   "main": "es/index.js",
+  "types": "types/index",
   "repository": "https://github.com/space-fe/react-onroutechanged.git",
   "author": "buptdxc@gmail.com",
   "license": "MIT",
