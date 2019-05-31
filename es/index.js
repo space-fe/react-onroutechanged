@@ -48,35 +48,54 @@ const onRouteChangedHOC = (DecoratedComponent, config = {
   config.mounted = config.mounted === undefined ? false : config.mounted;
   config.onlyPathname = config.onlyPathname === undefined ? true : config.onlyPathname;
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
+  const isReactComponent = DecoratedComponent.prototype.isReactComponent;
 
   class RouteChangedComponent extends React.Component {
     constructor(...args) {
       super(...args);
+
+      _defineProperty(this, "__getHandleRouteChangedFunc", () => {
+        let handleRouteChanged;
+
+        if (!isReactComponent && typeof config.handleRouteChanged === 'function') {
+          handleRouteChanged = config.handleRouteChanged;
+        }
+
+        if (isReactComponent && typeof this.instanceRef.handleRouteChanged === 'function') {
+          handleRouteChanged = this.instanceRef.handleRouteChanged;
+        }
+
+        return handleRouteChanged;
+      });
 
       _defineProperty(this, "__routeChangedHandler", (prevLocation, nextLocation) => {
         const isSamePath = prevLocation.pathname === nextLocation.pathname;
         const isSameSearch = prevLocation.search === nextLocation.search;
         const isSameHash = prevLocation.hash === nextLocation.hash;
 
+        const handleRouteChanged = this.__getHandleRouteChangedFunc();
+
         if (!isSamePath) {
-          return this.instanceRef.handleRouteChanged(prevLocation, nextLocation);
+          return handleRouteChanged(prevLocation, nextLocation);
         }
 
         if (!config.onlyPathname && (!isSameHash || !isSameSearch)) {
-          return this.instanceRef.handleRouteChanged(prevLocation, nextLocation);
+          return handleRouteChanged(prevLocation, nextLocation);
         }
       });
     }
 
     componentDidMount() {
-      if (typeof this.instanceRef.handleRouteChanged !== 'function') {
+      const handleRouteChanged = this.__getHandleRouteChangedFunc();
+
+      if (typeof handleRouteChanged !== 'function') {
         throw new Error('WrappedComponent lacks a handleRouteChanged(prevLocation, currLocation) for processing route changed event.');
       }
 
       if (config.mounted) {
         // Since we have no idea what the previous route is when the component got mounted,
         // We will pass an null as the prevLocation param
-        this.instanceRef.handleRouteChanged(null, this.props.location);
+        handleRouteChanged(null, this.props.location);
       }
     }
 
@@ -92,11 +111,15 @@ const onRouteChangedHOC = (DecoratedComponent, config = {
     }
 
     render() {
-      return React.createElement(DecoratedComponent, _extends({
-        ref: ref => {
+      let props = _extends({}, this.props);
+
+      if (isReactComponent) {
+        props.ref = ref => {
           this.instanceRef = ref;
-        }
-      }, this.props));
+        };
+      }
+
+      return React.createElement(DecoratedComponent, props);
     }
 
   }
