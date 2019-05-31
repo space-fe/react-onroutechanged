@@ -1,24 +1,16 @@
+import * as React from 'react'
+import * as H from 'history';
 
-import React from 'react'
-
-declare class RouteChangedComponent extends React.Component {}
-
-declare type LocationObject = {
-  pathname: string
-  search: string
-  hash: string
-}
-
-declare function onRouteChangedHOC(
-  DecoratedComponent: React.Component | Function,
+declare function onRouteChangedHOC<T>(
+  DecoratedComponent: React.ComponentType,
   config?: {
-    mounted: boolean
-    onlyPathname: boolean
-    handleRouteChanged: (
-      prevLocation: LocationObject,
-      nextLocation: LocationObject
+    mounted?: boolean
+    onlyPathname?: boolean
+    handleRouteChanged?: (
+      prevLocation: H.Location,
+      nextLocation: H.Location
     ) => void
   }
-): RouteChangedComponent
+): React.ComponentType<T>
 
 export default onRouteChangedHOC
