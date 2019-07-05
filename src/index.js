@@ -12,7 +12,7 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
   config.onlyPathname = config.onlyPathname === undefined ? true : config.onlyPathname
 
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
-  const isReactComponent = DecoratedComponent.prototype.isReactComponent
+  const isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent
 
   class RouteChangedComponent extends React.Component {
     static displayName = `OnRouteChanged(${componentName})`

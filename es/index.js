@@ -118,7 +118,7 @@ var onRouteChangedHOC = function onRouteChangedHOC(DecoratedComponent) {
   config.mounted = config.mounted === undefined ? false : config.mounted;
   config.onlyPathname = config.onlyPathname === undefined ? true : config.onlyPathname;
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
-  var isReactComponent = DecoratedComponent.prototype.isReactComponent;
+  var isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent;
 
   var RouteChangedComponent =
   /*#__PURE__*/
