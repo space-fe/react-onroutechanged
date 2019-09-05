@@ -2,6 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 
+const { useEffect, useRef } = React
+
 /**
  * This function generates the HOC function that will call
  * the handleRoutedChanged function of the DecoratedComponent instance
@@ -14,33 +16,31 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
   const isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent
 
-  class RouteChangedComponent extends React.Component {
-    static displayName = `OnRouteChanged(${componentName})`
+  const RouteChangedComponent = (props) => {
+    const { location } = props
+    const prevLocationRef = useRef(location)
+    const instanceRef = useRef(null)
 
-    static propTypes = {
-      location: PropTypes.object.isRequired
-    }
-
-    __getHandleRouteChangedFunc = () => {
+    const __getHandleRouteChangedFunc = () => {
       let handleRouteChanged
 
       if (!isReactComponent && typeof config.handleRouteChanged === 'function') {
         handleRouteChanged = config.handleRouteChanged
       }
 
-      if (isReactComponent && typeof this.instanceRef.handleRouteChanged === 'function') {
-        handleRouteChanged = this.instanceRef.handleRouteChanged
+      if (isReactComponent && typeof instanceRef.current.handleRouteChanged === 'function') {
+        handleRouteChanged = instanceRef.current.handleRouteChanged
       }
 
       return handleRouteChanged
     }
 
-    __routeChangedHandler = (prevLocation, nextLocation) => {
+    const __routeChangedHandler = (prevLocation, nextLocation) => {
       const isSamePath = prevLocation.pathname === nextLocation.pathname
       const isSameSearch = prevLocation.search === nextLocation.search
       const isSameHash = prevLocation.hash === nextLocation.hash
 
-      const handleRouteChanged = this.__getHandleRouteChangedFunc()
+      const handleRouteChanged = __getHandleRouteChangedFunc()
 
       if (!isSamePath) {
         return handleRouteChanged(prevLocation, nextLocation)
@@ -51,42 +51,41 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
       }
     }
 
-    componentDidMount () {
-      const handleRouteChanged = this.__getHandleRouteChangedFunc()
+    useEffect(() => {
+      const handleRouteChanged = __getHandleRouteChangedFunc()
 
       if (typeof handleRouteChanged !== 'function') {
         throw new Error(
           'WrappedComponent lacks a handleRouteChanged(prevLocation, currLocation) for processing route changed event.'
         )
       }
-
       if (config.mounted) {
         // Since we have no idea what the previous route is when the component got mounted,
         // We will pass an null as the prevLocation param
-        handleRouteChanged(null, this.props.location)
+        handleRouteChanged(null, location)
       }
-    }
+    }, [])
 
-    componentWillReceiveProps (nextProps) {
-      const prevLocation = this.props.location
-      const nextLocation = nextProps.location
+    useEffect(() => {
+      prevLocationRef.current = location
+    })
+    const preLocation = prevLocationRef.current
 
-      if (prevLocation === nextLocation) {
-        return
-      }
+    useEffect(() => {
+      __routeChangedHandler(preLocation, location)
+    }, [props.location])
 
-      this.__routeChangedHandler(prevLocation, nextLocation)
-    }
-
-    render () {
-      let { ...props } = this.props
-      if (isReactComponent) {
-        props.ref = ref => { this.instanceRef = ref }
-      }
-
+    if (isReactComponent) {
+      return <DecoratedComponent ref={instanceRef} {...props} />
+    } else {
       return <DecoratedComponent {...props} />
     }
   }
+
+  RouteChangedComponent.propTypes = {
+    location: PropTypes.object.isRequired
+  }
+  RouteChangedComponent.displayName = `OnRouteChanged(${componentName})`
 
   return withRouter(RouteChangedComponent)
 }
