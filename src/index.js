@@ -24,8 +24,8 @@ const onRouteChangedHOC = (DecoratedComponent, config = { mounted: false, onlyPa
     const __getHandleRouteChangedFunc = () => {
       let handleRouteChanged
 
-      if (!isReactComponent && typeof config.handleRouteChanged === 'function') {
-        handleRouteChanged = config.handleRouteChanged
+      if (!isReactComponent && typeof DecoratedComponent.handleRouteChanged === 'function') {
+        handleRouteChanged = DecoratedComponent.handleRouteChanged
       }
 
       if (isReactComponent && typeof instanceRef.current.handleRouteChanged === 'function') {

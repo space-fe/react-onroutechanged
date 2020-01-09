@@ -46,8 +46,8 @@ var onRouteChangedHOC = function onRouteChangedHOC(DecoratedComponent) {
     var __getHandleRouteChangedFunc = function __getHandleRouteChangedFunc() {
       var handleRouteChanged;
 
-      if (!isReactComponent && typeof config.handleRouteChanged === 'function') {
-        handleRouteChanged = config.handleRouteChanged;
+      if (!isReactComponent && typeof DecoratedComponent.handleRouteChanged === 'function') {
+        handleRouteChanged = DecoratedComponent.handleRouteChanged;
       }
 
       if (isReactComponent && typeof instanceRef.current.handleRouteChanged === 'function') {
