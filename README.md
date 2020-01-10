@@ -48,8 +48,7 @@ const MyComponent = () => {
 
 const onRoutedChangedConfig = {
   mounted: true,
-  onlyPathname: false,
-  handleRouteChanged: MyComponent.handleRouteChanged
+  onlyPathname: false
 }
 
 export default onRouteChangedHOC(MyComponent, onRoutedChangedConfig)
@@ -69,4 +68,3 @@ The `location` object has the following attributes:
 | -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mounted`      | `boolean` | `false` | If `true`, the `handleRouteChanged` method of the wrappedComponent will be called with `(null, currentLocation)`when the component is mounted.                                                                                          |
 | `onlyPathname` | `boolean` | `true`  | If `true`, the `handleRouteChanged` method will only be called when the `pathname` of the location has been changed. If `false`, the changes of `search` or `hash` of the `location` will also trigger the `handleRouteChanged` method. |
-| `handleRouteChanged` | `function` |   | `handleRouteChanged` method is required when the DecoratedComponent is a functional component |
